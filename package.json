@@ -1,0 +1,26 @@
+{
+  "name": "driver-notify",
+  "version": "1.0.0",
+  "description": "create request to keep information, to compose message and send to driver via line notification\"",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
+  "keywords": [
+    "LINE"
+  ],
+  "author": "Kantinan Makmee",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "request-promise": "^4.2.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
