@@ -57,32 +57,36 @@ app.get("/", function (req, res) {
             info += " ในช่วงเวลา " + message_data.appointment;
             info += " ผู้จองหรือขอใช้งานคือ " + message_data.user_request;
 
-            request({
-              method: "POST",
-              uri: LINE_NOTIFY_API,
-              headers: {
-                Authorization: `Bearer ${message_data.token}`,
-              },
-              formData: {
-                message: info,
-                stickerPackageId: 4,
-                stickerId: 613,
-              },
-            })
-              .then((response) => {
-                console.log("Sent");
-                console.log({
-                  item: info,
-                  response: response,
-                });
+            if (message_data.token != "") {
+              request({
+                method: "POST",
+                uri: LINE_NOTIFY_API,
+                headers: {
+                  Authorization: `Bearer ${message_data.token}`,
+                },
+                formData: {
+                  message: info,
+                  stickerPackageId: 4,
+                  stickerId: 613,
+                },
               })
-              .catch((err) => {
-                console.log("Error:", err.message);
-                console.log({
-                  item: info,
-                  Error: err.message,
+                .then((response) => {
+                  console.log("Sent");
+                  console.log({
+                    item: info,
+                    response: response,
+                  });
+                })
+                .catch((err) => {
+                  console.log("Error:", err.message);
+                  console.log({
+                    item: info,
+                    Error: err.message,
+                  });
                 });
-              });
+            } else {
+              console.log("token not fund: ", item);
+            }
           });
         } //end if check length
 
