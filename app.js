@@ -60,6 +60,32 @@ app.get("/check", function (req, res) {
       });
     });
 });
+
+app.get("/onday", function (req, res) {
+  // res.json({
+  //   message: "Hello World",
+  // });
+
+  util
+    .webHookDriverTask("phornchetj", "22-04-2025") //22-04-2025 , 24-01-2025
+    .then(function (data) {
+      //console.log("Document is ");
+      console.log(data.schedule);
+      //console.log("Return: " + data.schedule.length);
+      //console.log(JSON.parse(data));
+
+      res.json({
+        joblist: data,
+      });
+    })
+    .catch(function (err) {
+      console.log("Error:", err.message);
+      res.json({
+        Error: err.message,
+      });
+    });
+});
+
 app.get("/line_notify_old", function (req, res) {
   var schedule_info = [];
   users = config.driver_acc;
