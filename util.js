@@ -319,6 +319,7 @@ exports.webHookDriverTask = (username, check_date) =>
       .then(function (response) {
         objJSON = JSON.parse(response);
         var schedule = [];
+        var flex_element = [];
 
         console.log("result" + objJSON);
         console.log("count:" + objJSON.length);
@@ -431,6 +432,8 @@ exports.webHookDriverTask = (username, check_date) =>
             token: userIdToken,
           };
           //schedule.push(schedule[index]);
+
+          flex_element[index] = createFlexMessage(objJSON[index]);
           index++;
         }
 
@@ -439,6 +442,7 @@ exports.webHookDriverTask = (username, check_date) =>
 
         resolve({
           schedule,
+          flex_element,
         });
         console.log(
           "END DateTime " + moment.tz("Asia/Bangkok").format("DD-MM-YYYY HH:mm")
@@ -449,6 +453,129 @@ exports.webHookDriverTask = (username, check_date) =>
         reject(err);
       });
   });
+
+function createFlexMessage(booking) {
+  const startTime = booking.start_time.substring(0, 5);
+  const endTime = booking.end_time.substring(0, 5);
+  const timeRange = `${startTime} - ${endTime}`;
+
+  // Create the Flex message structure
+  return {
+    type: "flex",
+    altText: `Car Booking: ${booking.booking_number}`,
+    contents: {
+      type: "bubble",
+      header: {
+        type: "box",
+        layout: "horizontal",
+        contents: [
+          {
+            type: "text",
+            text: booking.vehicle_number,
+            size: "xl",
+            color: "#f7cea8",
+            decoration: "underline",
+            align: "start",
+          },
+          {
+            type: "text",
+            text: booking.booking_number,
+            color: "#FFFFFF",
+          },
+        ],
+      },
+      hero: {
+        type: "image",
+        url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/1735115938.jpg`,
+        aspectMode: "cover",
+        aspectRatio: "1.51:1",
+        size: "full",
+      },
+      body: {
+        type: "box",
+        layout: "vertical",
+        contents: [
+          {
+            type: "text",
+            text: `ปลายทาง: ${booking.location}`,
+            color: "#8c1c65",
+            size: "sm",
+            weight: "bold",
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              {
+                type: "text",
+                text: "เวลา:  ",
+                weight: "bold",
+                align: "end",
+                size: "sm",
+              },
+              {
+                type: "text",
+                text: timeRange,
+                align: "start",
+                size: "sm",
+              },
+            ],
+          },
+          {
+            type: "box",
+            layout: "horizontal",
+            contents: [
+              {
+                type: "text",
+                text: "ผู้ร่วมเดินทาง :  ",
+                weight: "bold",
+                align: "end",
+                size: "sm",
+              },
+              {
+                type: "text",
+                text: `${booking.travelers} ราย`,
+                align: "start",
+                size: "sm",
+              },
+            ],
+          },
+          {
+            type: "separator",
+          },
+          {
+            type: "text",
+            text: booking.title,
+          },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "horizontal",
+        contents: [
+          {
+            type: "text",
+            text: "ผู้ทำรายการ",
+            color: "#FFFFFF",
+          },
+          {
+            type: "text",
+            text: booking.user_request,
+            color: "#FFFFFF",
+            size: "xl",
+          },
+        ],
+        backgroundColor: "#1c4f8c",
+      },
+      styles: {
+        header: {
+          backgroundColor: "#1c4f8c",
+          separator: true,
+        },
+      },
+    },
+  };
+}
 function getCurrentMonth(month_num) {
   switch (month_num) {
     case "01":
