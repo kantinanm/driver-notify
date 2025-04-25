@@ -10,7 +10,57 @@ var app = express();
 
 app.use(cors());
 
+//old_schedule_driver
 app.get("/", function (req, res) {
+  // res.json({
+  //   message: "Hello World",
+  // });
+
+  util
+    .webHookInfo("phornchetj")
+    .then(function (data) {
+      //console.log("Document is ");
+      console.log(data.schedule);
+      //console.log("Return: " + data.schedule.length);
+      //console.log(JSON.parse(data));
+
+      res.json({
+        joblist: data,
+      });
+    })
+    .catch(function (err) {
+      console.log("Error:", err.message);
+      res.json({
+        Error: err.message,
+      });
+    });
+});
+
+//old_peeding_approval
+app.get("/check", function (req, res) {
+  console.log("check is ");
+  // res.json({
+  //   message: "Hello World",
+  // });
+  util.webHookNotApprove
+    .then(function (data) {
+      //console.log("Document is ");
+      console.log(data.schedule);
+      console.log("Return: " + data.schedule.length);
+      //console.log(JSON.parse(data));
+
+      res.json({
+        joblist: data,
+      });
+    })
+    .catch(function (err) {
+      console.log("Error:", err.message);
+      res.json({
+        Error: err.message,
+      });
+    });
+});
+app.get("/line_notify_old", function (req, res) {
   var schedule_info = [];
   users = config.driver_acc;
   userArray = users.split(",");

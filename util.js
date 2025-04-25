@@ -17,7 +17,7 @@ exports.webHookInfo = (username) =>
         momentz.tz("Asia/Bangkok").format("DD-MM-YYYY")
     );
 
-    dateCheck = "14-06-2023";
+    dateCheck = "22-04-2025";
     //dateCheck = momentz.tz("Asia/Bangkok").format("DD-MM-YYYY");
 
     request({
@@ -157,7 +157,7 @@ exports.webHookNotApprove = new Promise((resolve, reject) => {
   );
   console.log("Sent" + "@" + momentz.tz("Asia/Bangkok").format("YYYY-MM-DD"));
 
-  dateCheck = "2023-06-15";
+  dateCheck = "2025-04-22";
   //dateCheck = momentz.tz("Asia/Bangkok").format("DD-MM-YYYY");
 
   request({
