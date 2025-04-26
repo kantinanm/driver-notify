@@ -319,7 +319,7 @@ exports.webHookDriverTask = (username, check_date) =>
       .then(function (response) {
         objJSON = JSON.parse(response);
         var schedule = [];
-        var flex_element = [];
+        var bubbles = [];
 
         console.log("result" + objJSON);
         console.log("count:" + objJSON.length);
@@ -330,7 +330,10 @@ exports.webHookDriverTask = (username, check_date) =>
         var userIdToken = "";
         var location = "";
 
+        var cr = 1; // for increasing index of bubbles
+
         for (var index in objJSON) {
+          //console.log(" index : " + index);
           //console.log(attributename + ": " + objJSON[attributename]);
           console.log("booking_number: " + objJSON[index].booking_number);
           console.log("user_request: " + objJSON[index].user_request);
@@ -433,17 +436,31 @@ exports.webHookDriverTask = (username, check_date) =>
           };
           //schedule.push(schedule[index]);
 
-          flex_element[index] = createFlexMessage(objJSON[index]);
+          if (index == 0) {
+            bubbles[index] = createMainBubble(username, check_date);
+            bubbles[cr] = createFlexMessage(objJSON[index]);
+            cr++;
+          } else {
+            //console.log("index: " + index);
+            bubbles[cr] = createFlexMessage(objJSON[index]);
+            cr++;
+          }
+
           index++;
         }
 
         //schedule[0] = { booking_number: "test", use_to: "ss", title: "title" };
         //schedule[1] = { booking_number: "test2", use_to: "dd", title: "title" };
 
-        resolve({
-          schedule,
-          flex_element,
-        });
+        var flexOutput = { type: "carousel", contents: bubbles };
+
+        // resolve({
+        //   schedule,
+        //   //bubbles,
+        //   flexOutput,
+        // });
+
+        resolve(flexOutput);
         console.log(
           "END DateTime " + moment.tz("Asia/Bangkok").format("DD-MM-YYYY HH:mm")
         );
@@ -461,117 +478,196 @@ function createFlexMessage(booking) {
 
   // Create the Flex message structure
   return {
-    type: "flex",
-    altText: `Car Booking: ${booking.booking_number}`,
-    contents: {
-      type: "bubble",
-      header: {
-        type: "box",
-        layout: "horizontal",
-        contents: [
-          {
-            type: "text",
-            text: booking.vehicle_number,
-            size: "xl",
-            color: "#f7cea8",
-            decoration: "underline",
-            align: "start",
-          },
-          {
-            type: "text",
-            text: booking.booking_number,
-            color: "#FFFFFF",
-          },
-        ],
-      },
-      hero: {
-        type: "image",
-        url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/1735115938.jpg`,
-        aspectMode: "cover",
-        aspectRatio: "1.51:1",
-        size: "full",
-      },
-      body: {
-        type: "box",
-        layout: "vertical",
-        contents: [
-          {
-            type: "text",
-            text: `ปลายทาง: ${booking.location}`,
-            color: "#8c1c65",
-            size: "sm",
-            weight: "bold",
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: "เวลา:  ",
-                weight: "bold",
-                align: "end",
-                size: "sm",
-              },
-              {
-                type: "text",
-                text: timeRange,
-                align: "start",
-                size: "sm",
-              },
-            ],
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: "ผู้ร่วมเดินทาง :  ",
-                weight: "bold",
-                align: "end",
-                size: "sm",
-              },
-              {
-                type: "text",
-                text: `${booking.travelers} ราย`,
-                align: "start",
-                size: "sm",
-              },
-            ],
-          },
-          {
-            type: "separator",
-          },
-          {
-            type: "text",
-            text: booking.title,
-          },
-        ],
-      },
-      footer: {
-        type: "box",
-        layout: "horizontal",
-        contents: [
-          {
-            type: "text",
-            text: "ผู้ทำรายการ",
-            color: "#FFFFFF",
-          },
-          {
-            type: "text",
-            text: booking.user_request,
-            color: "#FFFFFF",
-            size: "xl",
-          },
-        ],
-        backgroundColor: "#1c4f8c",
-      },
-      styles: {
-        header: {
-          backgroundColor: "#1c4f8c",
-          separator: true,
+    type: "bubble",
+    header: {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        {
+          type: "text",
+          text: booking.vehicle_number,
+          size: "xl",
+          color: "#f7cea8",
+          decoration: "underline",
+          align: "start",
         },
+        {
+          type: "text",
+          text: booking.booking_number,
+          color: "#FFFFFF",
+        },
+      ],
+    },
+    hero: {
+      type: "image",
+      url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/1735115938.jpg`,
+      aspectMode: "cover",
+      aspectRatio: "1.51:1",
+      size: "full",
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: `ปลายทาง: ${booking.location}`,
+          color: "#8c1c65",
+          size: "sm",
+          weight: "bold",
+        },
+        {
+          type: "box",
+          layout: "horizontal",
+          contents: [
+            {
+              type: "text",
+              text: "เวลา:  ",
+              weight: "bold",
+              align: "end",
+              size: "sm",
+            },
+            {
+              type: "text",
+              text: timeRange,
+              align: "start",
+              size: "sm",
+            },
+          ],
+        },
+        {
+          type: "box",
+          layout: "horizontal",
+          contents: [
+            {
+              type: "text",
+              text: "ผู้ร่วมเดินทาง :  ",
+              weight: "bold",
+              align: "end",
+              size: "sm",
+            },
+            {
+              type: "text",
+              text: `${booking.travelers} ราย`,
+              align: "start",
+              size: "sm",
+            },
+          ],
+        },
+        {
+          type: "separator",
+        },
+        {
+          type: "text",
+          text: booking.title,
+        },
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "horizontal",
+      contents: [
+        {
+          type: "text",
+          text: "ผู้ทำรายการ",
+          color: "#FFFFFF",
+        },
+        {
+          type: "text",
+          text: booking.user_request,
+          color: "#FFFFFF",
+          size: "xl",
+        },
+      ],
+      backgroundColor: "#1c4f8c",
+    },
+    styles: {
+      header: {
+        backgroundColor: "#1c4f8c",
+        separator: true,
+      },
+    },
+  };
+}
+
+function createMainBubble(nunet, date_checked) {
+  return {
+    type: "bubble",
+    header: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: "แจ้งเตือน: ระบบยานพาหนะ",
+          color: "#FFFFFF",
+          align: "center",
+          scaling: true,
+          wrap: true,
+          size: "xl",
+        },
+      ],
+    },
+    hero: {
+      type: "image",
+      url: "https://www.eng.nu.ac.th/eng2022/images/officer/center/update/Pornchet_Chansuwan/P1055968.jpg",
+      aspectRatio: "1.51:1",
+      aspectMode: "fit",
+      size: "full",
+    },
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: `สวัสดีคุณ ${nunet} `,
+        },
+        {
+          type: "separator",
+          color: "#48036f",
+          margin: "sm",
+        },
+        {
+          type: "text",
+          text: "สถานที่ที่คุณต้องไป ในวันนี้ ",
+          align: "end",
+          weight: "bold",
+          margin: "md",
+          size: "sm",
+        },
+        {
+          type: "text",
+          text: "ธนาคารกรุงไทย, กองคลัง, ร้านไทไท ",
+          size: "sm",
+          decoration: "underline",
+          align: "center",
+          color: "#1e5cb3",
+        },
+      ],
+    },
+    footer: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: `งานวันนี้ (${date_checked} )`,
+          align: "center",
+          weight: "regular",
+          color: "#FFFFFF",
+          scaling: true,
+          wrap: true,
+          size: "xl",
+        },
+      ],
+      backgroundColor: "#8c743b",
+    },
+    styles: {
+      header: {
+        separator: true,
+        backgroundColor: "#528238",
+        separatorColor: "#44434a",
       },
     },
   };

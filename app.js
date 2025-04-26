@@ -70,13 +70,15 @@ app.get("/onday", function (req, res) {
     .webHookDriverTask("phornchetj", "22-04-2025") //22-04-2025 , 24-01-2025
     .then(function (data) {
       //console.log("Document is ");
-      console.log(data.schedule);
+      //console.log(data.schedule);
       //console.log("Return: " + data.schedule.length);
       //console.log(JSON.parse(data));
 
-      res.json({
-        joblist: data,
-      });
+      // res.json({
+      //   joblist: data,
+      // });
+
+      res.json(data);
     })
     .catch(function (err) {
       console.log("Error:", err.message);
