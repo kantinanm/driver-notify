@@ -67,7 +67,7 @@ app.get("/onday", function (req, res) {
   // });
 
   util
-    .webHookDriverTask("phornchetj", "22-04-2025") //22-04-2025 , 24-01-2025
+    .webHookDriverTask("phornchetj", "24-01-2025") //22-04-2025 , 24-01-2025
     .then(function (data) {
       //console.log("Document is ");
       //console.log(data.schedule);
@@ -78,7 +78,21 @@ app.get("/onday", function (req, res) {
       //   joblist: data,
       // });
 
-      res.json(data);
+      //res.json(data);
+
+      try {
+        util
+          .toFlexMessage(data.schedule, "phornchetj", "24-01-2025")
+          .then((flex) => {
+            console.log("Flex message: ", flex);
+            res.json(flex);
+          });
+      } catch (error) {
+        console.log("Error:", error.message);
+        res.json({
+          Error: error.message,
+        });
+      }
     })
     .catch(function (err) {
       console.log("Error:", err.message);

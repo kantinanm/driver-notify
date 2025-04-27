@@ -392,31 +392,41 @@ exports.webHookDriverTask = (username, check_date) =>
             // console.log("enddate :" + dE.format("D"));
 
             startDate =
-              dT.format("d") +
-              " " +
-              getCurrentMonth(dT.format("MM")) +
-              " " +
+              dT.format("D") +
+              "/" +
+              dT.format("MM") +
+              "/" +
               (parseInt(dT.format("YYYY")) + 543);
 
             endDate =
-              dE.format("d") +
-              " " +
-              getCurrentMonth(dE.format("MM")) +
-              " " +
+              dE.format("D") +
+              "/" +
+              dE.format("MM") +
+              "/" +
               (parseInt(dE.format("YYYY")) + 543);
 
             appointment_type = "period";
 
             // [Modity appointment_str to show time only]
+            // appointment_str =
+            //   "ตั้งแต่วันที่ " +
+            //   startDate +
+            //   " เวลา " +
+            //   appointment_start_time +
+            //   " ถึงวันที่ " +
+            //   endDate +
+            //   " เวลา " +
+            //   appointment_end_time;
+
             appointment_str =
-              "ตั้งแต่วันที่ " +
-              startDate +
-              " เวลา " +
+              //startDate +
+              " " +
               appointment_start_time +
-              " ถึงวันที่ " +
+              " ใช้รถถึง " +
               endDate +
-              " เวลา " +
-              appointment_end_time;
+              " " +
+              appointment_end_time +
+              " น.";
           }
 
           schedule[index] = {
@@ -428,7 +438,11 @@ exports.webHookDriverTask = (username, check_date) =>
             user_request: objJSON[index].user_request,
             phone: objJSON[index].phone,
             vehicle_type: objJSON[index].vehicle_type,
-            car_plate: objJSON[index].vehicle_number,
+            vehicle_number: objJSON[index].vehicle_number,
+            startdate: objJSON[index].startdate,
+            start_time: objJSON[index].start_time,
+            enddate: objJSON[index].enddate,
+            end_time: objJSON[index].end_time,
             location: location,
             appointment: appointment_str,
             appointment_type: appointment_type,
@@ -437,14 +451,11 @@ exports.webHookDriverTask = (username, check_date) =>
           //schedule.push(schedule[index]);
 
           if (index == 0) {
+            //Header bubble
             bubbles[index] = createMainBubble(username, check_date);
-            bubbles[cr] = createFlexMessage(objJSON[index]);
-            cr++;
-          } else {
-            //console.log("index: " + index);
-            bubbles[cr] = createFlexMessage(objJSON[index]);
-            cr++;
           }
+          bubbles[cr] = createFlexMessage(objJSON[index]); //objJSON[index]
+          cr++;
 
           index++;
         }
@@ -454,13 +465,14 @@ exports.webHookDriverTask = (username, check_date) =>
 
         var flexOutput = { type: "carousel", contents: bubbles };
 
-        // resolve({
-        //   schedule,
-        //   //bubbles,
-        //   flexOutput,
-        // });
+        resolve({
+          schedule,
+          //bubbles,
+          //flexOutput,
+        });
 
-        resolve(flexOutput);
+        //resolve(flexOutput);
+
         console.log(
           "END DateTime " + moment.tz("Asia/Bangkok").format("DD-MM-YYYY HH:mm")
         );
@@ -471,10 +483,65 @@ exports.webHookDriverTask = (username, check_date) =>
       });
   });
 
+exports.toFlexMessage = (schedule, user, date) =>
+  new Promise((resolve, reject) => {
+    try {
+      var bubbles = [];
+      var cr = 1; // for increasing index of bubbles
+
+      schedule.forEach((booking, index) => {
+        console.log("index: " + index);
+
+        if (index == 0) {
+          //Header bubble
+          bubbles[index] = createMainBubble(user, date);
+        }
+
+        bubbles[cr] = createFlexMessage(booking);
+        cr++;
+
+        //bubbles[index] = createFlexMessage(booking);
+      });
+
+      var flexOutput = { type: "carousel", contents: bubbles };
+      resolve(flexOutput);
+    } catch (err) {
+      console.log("Error:", err.message);
+      reject(err);
+    }
+  });
+
 function createFlexMessage(booking) {
   const startTime = booking.start_time.substring(0, 5);
   const endTime = booking.end_time.substring(0, 5);
   const timeRange = `${startTime} - ${endTime}`;
+
+  var time_contents = [];
+
+  console.log("appointment_type: " + booking.appointment_type);
+
+  if (booking.appointment_type === "period") {
+    time_contents[0] = {
+      type: "text",
+      text: booking.appointment,
+      align: "start",
+      size: "sm",
+    };
+  } else {
+    time_contents[0] = {
+      type: "text",
+      text: "เวลา:  ",
+      weight: "bold",
+      align: "end",
+      size: "sm",
+    };
+    time_contents[1] = {
+      type: "text",
+      text: timeRange,
+      align: "start",
+      size: "sm",
+    };
+  }
 
   // Create the Flex message structure
   return {
@@ -519,21 +586,7 @@ function createFlexMessage(booking) {
         {
           type: "box",
           layout: "horizontal",
-          contents: [
-            {
-              type: "text",
-              text: "เวลา:  ",
-              weight: "bold",
-              align: "end",
-              size: "sm",
-            },
-            {
-              type: "text",
-              text: timeRange,
-              align: "start",
-              size: "sm",
-            },
-          ],
+          contents: time_contents,
         },
         {
           type: "box",
@@ -560,6 +613,7 @@ function createFlexMessage(booking) {
         {
           type: "text",
           text: booking.title,
+          size: "sm",
         },
       ],
     },
