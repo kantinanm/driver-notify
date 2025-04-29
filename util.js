@@ -336,28 +336,24 @@ exports.webHookDriverTask = (username, check_date) =>
           //console.log(" index : " + index);
           //console.log(attributename + ": " + objJSON[attributename]);
           console.log("booking_number: " + objJSON[index].booking_number);
-          console.log("user_request: " + objJSON[index].user_request);
-          console.log("use_to: " + objJSON[index].use_to);
+          console.log("user_request: " + objJSON[index].request_by);
+          console.log("use_to: " + objJSON[index].request_by_ou);
           console.log("title: " + objJSON[index].title);
           //userId
-          console.log("token: " + objJSON[index].userId);
-          userIdToken = objJSON[index].userId;
+          console.log("token: " + objJSON[index].user_token);
+          userIdToken = objJSON[index].user_token;
           //location
           location = objJSON[index].location;
 
-          var dT = moment(objJSON[index].startdate);
-          var dE = moment(objJSON[index].enddate);
+          console.log("start_date :" + objJSON[index].start_date);
+          console.log("end_date :" + objJSON[index].end_date);
 
-          console.log("startdate :" + objJSON[index].startdate);
-          console.log("enddate :" + objJSON[index].enddate);
+          console.log("days of used :" + objJSON[index].days);
 
-          console.log("startdate :" + dT.format("D"));
-          console.log("enddate :" + dE.format("D"));
-
-          if (objJSON[index].startdate === objJSON[index].enddate) {
+          if (objJSON[index].days == 0) {
             //same days ในวันที่
             //var d = momment('2019-01-01');
-            var d = moment(objJSON[index].startdate);
+            var d = moment(objJSON[index].start_date);
             //var st = moment("13:15:00", "h:mm:ss");
             var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
             var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
@@ -376,8 +372,8 @@ exports.webHookDriverTask = (username, check_date) =>
           } else {
             //between ระหว่างวันที่
             // waiting to implement
-            var dT = moment(objJSON[index].startdate);
-            var dE = moment(objJSON[index].enddate);
+            var dT = moment(objJSON[index].start_date);
+            var dE = moment(objJSON[index].end_date);
 
             var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
             var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
@@ -385,11 +381,11 @@ exports.webHookDriverTask = (username, check_date) =>
             appointment_start_time = st.format("HH:mm");
             appointment_end_time = et.format("HH:mm");
 
-            // console.log("startdate :" + objJSON[index].startdate);
-            // console.log("enddate :" + objJSON[index].enddate);
+            // console.log("start_date :" + objJSON[index].start_date);
+            // console.log("end_date :" + objJSON[index].end_date);
 
             // console.log("startdate :" + dT.format("D"));
-            // console.log("enddate :" + dE.format("D"));
+            // console.log("end_date :" + dE.format("D"));
 
             startDate =
               dT.format("D") +
@@ -429,24 +425,41 @@ exports.webHookDriverTask = (username, check_date) =>
               " น.";
           }
 
+          var vihicle_type_text = "";
+          if (objJSON[index].vehicle_id == 3) {
+            vihicle_type_text = "รถกระบะ";
+          } else {
+            vihicle_type_text = "รถตู้";
+          }
+
           schedule[index] = {
             booking_number: objJSON[index].booking_number,
-            use_to: objJSON[index].use_to,
+            use_to: objJSON[index].request_by_ou,
             title: objJSON[index].title,
             detail: objJSON[index].detail,
             travelers: objJSON[index].travelers,
-            user_request: objJSON[index].user_request,
+            user_request: objJSON[index].request_by,
             phone: objJSON[index].phone,
-            vehicle_type: objJSON[index].vehicle_type,
+            car: vihicle_type_text,
+            vehicle_id: objJSON[index].vehicle_id,
             vehicle_number: objJSON[index].vehicle_number,
-            startdate: objJSON[index].startdate,
-            start_time: objJSON[index].start_time,
-            enddate: objJSON[index].enddate,
-            end_time: objJSON[index].end_time,
+            service_area: objJSON[index].service_area,
             location: location,
+            days: objJSON[index].days,
+            times_unit: objJSON[index].times_unit,
+            startdate: objJSON[index].start_date,
+            start_time: objJSON[index].start_time,
+            enddate: objJSON[index].end_date,
+            end_time: objJSON[index].end_time,
+            driver_nunet: objJSON[index].driver_nunet,
+            driver_name: objJSON[index].driver_name,
             appointment: appointment_str,
             appointment_type: appointment_type,
             token: userIdToken,
+
+            status: objJSON[index].status,
+            send_status: objJSON[index].send_status,
+            approved_date: objJSON[index].approved_date,
           };
           //schedule.push(schedule[index]);
 
@@ -463,7 +476,7 @@ exports.webHookDriverTask = (username, check_date) =>
         //schedule[0] = { booking_number: "test", use_to: "ss", title: "title" };
         //schedule[1] = { booking_number: "test2", use_to: "dd", title: "title" };
 
-        var flexOutput = { type: "carousel", contents: bubbles };
+        //var flexOutput = { type: "carousel", contents: bubbles };
 
         resolve({
           schedule,
@@ -483,18 +496,26 @@ exports.webHookDriverTask = (username, check_date) =>
       });
   });
 
-exports.toFlexMessage = (schedule, user, date) =>
+exports.toFlexMessage = (schedule, date) =>
   new Promise((resolve, reject) => {
     try {
       var bubbles = [];
+
       var cr = 1; // for increasing index of bubbles
+
+      console.log("schedule length: " + schedule.length);
+      //filter and split schedule to bubbles
+      schedule = schedule.filter((item) => item.send_status > 0);
+      console.log("split schedule and remain length: " + schedule.length);
+
+      //manipulate location and server_area in all elements.
 
       schedule.forEach((booking, index) => {
         console.log("index: " + index);
 
         if (index == 0) {
           //Header bubble
-          bubbles[index] = createMainBubble(user, date);
+          bubbles[index] = createMainBubble(booking, date);
         }
 
         bubbles[cr] = createFlexMessage(booking);
@@ -518,9 +539,9 @@ function createFlexMessage(booking) {
 
   var time_contents = [];
 
-  console.log("appointment_type: " + booking.appointment_type);
+  console.log("appointment_type[days]: " + booking.days);
 
-  if (booking.appointment_type === "period") {
+  if (booking.days > 0) {
     time_contents[0] = {
       type: "text",
       text: booking.appointment,
@@ -542,6 +563,17 @@ function createFlexMessage(booking) {
       size: "sm",
     };
   }
+
+  // Multi-dimensional array with key-value mapping for usernames and profile images
+  const cars = [
+    { car_id: 1, image: "1686801796.jpg" }, //นข 5597
+    { car_id: 3, image: "1735115938.jpg" }, //กจ 9079
+    { car_id: 5, image: "1735115803.jpg" }, //นข 8145
+  ];
+
+  // Find the profile image for the given user
+  const carProfile = cars.find((car) => car.car_id === booking.vehicle_id);
+  const carImage = carProfile ? carProfile.image : "default.png";
 
   // Create the Flex message structure
   return {
@@ -567,7 +599,7 @@ function createFlexMessage(booking) {
     },
     hero: {
       type: "image",
-      url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/1735115938.jpg`,
+      url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/${carImage}`,
       aspectMode: "cover",
       aspectRatio: "1.51:1",
       size: "full",
@@ -644,7 +676,21 @@ function createFlexMessage(booking) {
   };
 }
 
-function createMainBubble(nunet, date_checked) {
+function createMainBubble(booking, date_checked) {
+  // Multi-dimensional array with key-value mapping for usernames and profile images
+  const profiles = [
+    { username: "prapotep", image: "prapotep.png" },
+    { username: "phornchetj", image: "tae_cute.png" },
+    { username: "chaiwattho", image: "driver3.png" },
+    { username: "tongchaili", image: "driver4.png" },
+  ];
+
+  // Find the profile image for the given user
+  const userProfile = profiles.find(
+    (profile) => profile.username === booking.driver_nunet
+  );
+  const userImage = userProfile ? userProfile.image : "default.png";
+
   return {
     type: "bubble",
     header: {
@@ -664,7 +710,9 @@ function createMainBubble(nunet, date_checked) {
     },
     hero: {
       type: "image",
-      url: "https://www.eng.nu.ac.th/eng2022/images/officer/center/update/Pornchet_Chansuwan/P1055968.jpg",
+      url:
+        "https://tools.ecpe.nu.ac.th/car-service/images/asset/driver_profile/" +
+        userImage,
       aspectRatio: "1.51:1",
       aspectMode: "fit",
       size: "full",
@@ -675,7 +723,7 @@ function createMainBubble(nunet, date_checked) {
       contents: [
         {
           type: "text",
-          text: `สวัสดีคุณ ${nunet} `,
+          text: `สวัสดีคุณ ${booking.driver_name} `,
         },
         {
           type: "separator",

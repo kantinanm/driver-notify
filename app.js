@@ -71,7 +71,7 @@ app.get("/onday", function (req, res) {
     .then(function (data) {
       //console.log("Document is ");
       //console.log(data.schedule);
-      //console.log("Return: " + data.schedule.length);
+      console.log("Return: " + data.schedule.length);
       //console.log(JSON.parse(data));
 
       // res.json({
@@ -81,12 +81,10 @@ app.get("/onday", function (req, res) {
       //res.json(data);
 
       try {
-        util
-          .toFlexMessage(data.schedule, "phornchetj", "24-01-2025")
-          .then((flex) => {
-            console.log("Flex message: ", flex);
-            res.json(flex);
-          });
+        util.toFlexMessage(data.schedule, "24-01-2025").then((flex) => {
+          console.log("Flex message: ", flex);
+          res.json(flex);
+        });
       } catch (error) {
         console.log("Error:", error.message);
         res.json({
