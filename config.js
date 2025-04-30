@@ -1,7 +1,15 @@
 const dotenv = require("dotenv");
 
 dotenv.config({ path: "./.env" });
-const { PORT, HOST, HOST_URL, EXTERNAL_API, DRIVER_ACC } = process.env;
+const {
+  PORT,
+  HOST,
+  HOST_URL,
+  EXTERNAL_API,
+  DRIVER_ACC,
+  ASSET_URL,
+  LINE_CHANNEL_ACCESS_TOKEN,
+} = process.env;
 
 module.exports = {
   port: PORT,
@@ -9,4 +17,6 @@ module.exports = {
   host_url: HOST_URL,
   external_url: EXTERNAL_API,
   driver_acc: DRIVER_ACC,
+  asset_url: ASSET_URL,
+  line_channel_access_token: LINE_CHANNEL_ACCESS_TOKEN,
 };

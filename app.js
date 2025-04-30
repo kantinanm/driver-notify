@@ -4,7 +4,7 @@ const express = require("express");
 var util = require("./util");
 const cors = require("cors");
 const request = require("request-promise");
-const LINE_NOTIFY_API = "https://notify-api.line.me/api/notify";
+const LINE_NOTIFY_API = "https://api.line.me/v2/bot/message/push"; // messaging api
 
 var app = express();
 
@@ -12,28 +12,30 @@ app.use(cors());
 
 //old_schedule_driver
 app.get("/", function (req, res) {
-  // res.json({
-  //   message: "Hello World",
-  // });
+  console.log("Hello World");
 
-  util
-    .webHookInfo("phornchetj")
-    .then(function (data) {
-      //console.log("Document is ");
-      console.log(data.schedule);
-      //console.log("Return: " + data.schedule.length);
-      //console.log(JSON.parse(data));
+  res.json({
+    message: "Hello World",
+  });
 
-      res.json({
-        joblist: data,
-      });
-    })
-    .catch(function (err) {
-      console.log("Error:", err.message);
-      res.json({
-        Error: err.message,
-      });
-    });
+  //   util
+  //     .webHookInfo("phornchetj")
+  //     .then(function (data) {
+  //       //console.log("Document is ");
+  //       console.log(data.schedule);
+  //       //console.log("Return: " + data.schedule.length);
+  //       //console.log(JSON.parse(data));
+
+  //       res.json({
+  //         joblist: data,
+  //       });
+  //     })
+  //     .catch(function (err) {
+  //       console.log("Error:", err.message);
+  //       res.json({
+  //         Error: err.message,
+  //       });
+  //     });
 });
 
 //old_peeding_approval
@@ -66,8 +68,11 @@ app.get("/onday", function (req, res) {
   //   message: "Hello World",
   // });
 
+  var nunet = "prapotep";
+  var date_filter = "23-04-2025";
+
   util
-    .webHookDriverTask("phornchetj", "24-01-2025") //22-04-2025 , 24-01-2025
+    .webHookDriverTask(nunet, date_filter) //prapotep //phornchetj  //22-04-2025 , 24-01-2025 //23-04-2025
     .then(function (data) {
       //console.log("Document is ");
       //console.log(data.schedule);
@@ -80,15 +85,40 @@ app.get("/onday", function (req, res) {
 
       //res.json(data);
 
-      try {
-        util.toFlexMessage(data.schedule, "24-01-2025").then((flex) => {
-          console.log("Flex message: ", flex);
-          res.json(flex);
-        });
-      } catch (error) {
-        console.log("Error:", error.message);
+      data.schedule.forEach((item) => {
+        console.log("debug item_token: " + item.token);
+        //return;
+      });
+
+      //filter user_token in data.schedule not null
+      var filter = data.schedule.filter(
+        (item) => item.token != null && item.token != ""
+      );
+      console.log("Before filter: " + data.schedule.length);
+      console.log("After filter: " + filter.length);
+
+      //console.log(data.schedule.filter((o) => o.token != null));
+
+      if (filter.length > 0) {
+        //flex message structure
+        try {
+          util.toFlexMessage(filter, date_filter).then((flex) => {
+            console.log("Flex message: prepair completed.");
+            console.log("Ready to sent  to LINE Notify");
+            res.json(flex);
+
+            //create request to line notify
+          });
+        } catch (error) {
+          console.log("Error:", error.message);
+          res.json({
+            Error: error.message,
+          });
+        }
+      } else {
+        console.log("No token found in schedule: ", data.schedule.length);
         res.json({
-          Error: error.message,
+          message: "No token found in schedule",
         });
       }
     })
@@ -100,6 +130,112 @@ app.get("/onday", function (req, res) {
     });
 });
 
+app.get("/push", function (req, res) {
+  //
+  var nunet = "chaiwattho";
+  var date_filter = "30-04-2025";
+
+  util
+    .webHookDriverTask(nunet, date_filter) //prapotep //phornchetj  //22-04-2025 , 24-01-2025 //23-04-2025
+    .then(function (data) {
+      //filter user_token in data.schedule not null
+      var filter = data.schedule.filter(
+        (item) => item.token != null && item.token != ""
+      );
+      console.log("Before filter: " + data.schedule.length);
+      console.log("After filter: " + filter.length);
+
+      if (filter.length > 0) {
+        var target_user = filter[0].token; //fix for me and test only
+        console.log("target_user: " + target_user);
+        console.log("LINE BOT: " + config.line_channel_access_token);
+
+        // filter.forEach((item) => {
+        //   console.log("debug item_token: " + item.token);
+        //   //return;
+        // });
+
+        //flex message structure
+        try {
+          util.toFlexMessage(filter, date_filter).then((flex) => {
+            console.log("Flex message: prepair completed.");
+            console.log("Ready to sent  to LINE Notify");
+            //res.json(flex);
+
+            //create request to line notify
+
+            var postData = {
+              to: "U8f8e4b03ef6f41a4be11a1f08b0f4c88", //fix for me and test only.  change to [target_user]
+              messages: [
+                {
+                  type: "flex",
+                  altText: "แจ้งเตือน ระบบจองยานพาหนะ",
+                  contents: {
+                    type: "carousel",
+                    contents: flex,
+                  },
+                },
+              ],
+            };
+
+            //res.json(postData);
+
+            request({
+              method: "POST",
+              uri: LINE_NOTIFY_API,
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${config.line_channel_access_token}`,
+              },
+              json: true,
+              body: postData,
+            })
+              .then((response) => {
+                console.log("Sent");
+                console.log({
+                  //item: info,
+                  message: "Sent",
+                  response: response,
+                });
+                res.json({
+                  //item: info,
+                  message: "Sent",
+                  response: response,
+                });
+              })
+              .catch((err) => {
+                console.log("Error:", err.message);
+                console.log({
+                  message: "Error:",
+                  Error: err.message,
+                });
+                res.json({
+                  //item: info,
+                  message: "Error",
+                  response: response,
+                });
+              });
+          });
+        } catch (error) {
+          console.log("Error:", error.message);
+          res.json({
+            Error: error.message,
+          });
+        }
+      } else {
+        console.log("No token found in schedule: ", data.schedule.length);
+        res.json({
+          message: "No token found in schedule",
+        });
+      }
+    })
+    .catch(function (err) {
+      console.log("Error:", err.message);
+      res.json({
+        Error: err.message,
+      });
+    });
+});
 app.get("/line_notify_old", function (req, res) {
   var schedule_info = [];
   users = config.driver_acc;

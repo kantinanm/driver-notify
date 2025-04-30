@@ -508,24 +508,32 @@ exports.toFlexMessage = (schedule, date) =>
       schedule = schedule.filter((item) => item.send_status > 0);
       console.log("split schedule and remain length: " + schedule.length);
 
-      //manipulate location and server_area in all elements.
+      //manipulate location  in all elements.
+      // then passing value to createMainBubble function
+      // Collect all locations into a single variable
+      const allLocations = schedule.map((item) => item.location).join(", ");
+      console.log("allLocations is : " + allLocations);
 
       schedule.forEach((booking, index) => {
         console.log("index: " + index);
 
         if (index == 0) {
           //Header bubble
-          bubbles[index] = createMainBubble(booking, date);
+          bubbles[index] = createMainBubble(booking, date, allLocations);
         }
 
         bubbles[cr] = createFlexMessage(booking);
+
         cr++;
 
         //bubbles[index] = createFlexMessage(booking);
       });
 
       var flexOutput = { type: "carousel", contents: bubbles };
-      resolve(flexOutput);
+      //resolve(flexOutput);//all flex message
+      resolve(
+        bubbles // bubbles only
+      );
     } catch (err) {
       console.log("Error:", err.message);
       reject(err);
@@ -564,11 +572,11 @@ function createFlexMessage(booking) {
     };
   }
 
-  // Multi-dimensional array with key-value mapping for usernames and profile images
+  // Multi-dimensional array with key-value mapping for car
   const cars = [
-    { car_id: 1, image: "1686801796.jpg" }, //นข 5597
-    { car_id: 3, image: "1735115938.jpg" }, //กจ 9079
-    { car_id: 5, image: "1735115803.jpg" }, //นข 8145
+    { car_id: 1, image: "1686801796.jpg" }, //นx xx97
+    { car_id: 3, image: "1735115938.jpg" }, //xจ xx79
+    { car_id: 5, image: "1735115803.jpg" }, //xข xx45
   ];
 
   // Find the profile image for the given user
@@ -599,7 +607,7 @@ function createFlexMessage(booking) {
     },
     hero: {
       type: "image",
-      url: `https://tools.ecpe.nu.ac.th/car-service/images/cars/${carImage}`,
+      url: `${config.asset_url}/images/cars/${carImage}`,
       aspectMode: "cover",
       aspectRatio: "1.51:1",
       size: "full",
@@ -676,13 +684,13 @@ function createFlexMessage(booking) {
   };
 }
 
-function createMainBubble(booking, date_checked) {
+function createMainBubble(booking, date_checked, locations) {
   // Multi-dimensional array with key-value mapping for usernames and profile images
   const profiles = [
     { username: "prapotep", image: "prapotep.png" },
     { username: "phornchetj", image: "tae_cute.png" },
     { username: "chaiwattho", image: "driver3.png" },
-    { username: "tongchaili", image: "driver4.png" },
+    { username: "tongchaili", image: "thongchaili.png" },
   ];
 
   // Find the profile image for the given user
@@ -710,9 +718,8 @@ function createMainBubble(booking, date_checked) {
     },
     hero: {
       type: "image",
-      url:
-        "https://tools.ecpe.nu.ac.th/car-service/images/asset/driver_profile/" +
-        userImage,
+      //`${config.asset_url}/images/asset/driver_profile/${userImage}`
+      url: `${config.asset_url}/images/asset/driver_profile/${userImage}`,
       aspectRatio: "1.51:1",
       aspectMode: "fit",
       size: "full",
@@ -740,7 +747,7 @@ function createMainBubble(booking, date_checked) {
         },
         {
           type: "text",
-          text: "ธนาคารกรุงไทย, กองคลัง, ร้านไทไท ",
+          text: `${locations} `,
           size: "sm",
           decoration: "underline",
           align: "center",
