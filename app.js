@@ -68,8 +68,8 @@ app.get("/onday", function (req, res) {
   //   message: "Hello World",
   // });
 
-  var nunet = "prapotep";
-  var date_filter = "23-04-2025";
+  var nunet = "chaiwattho";
+  var date_filter = "02-05-2025";
 
   util
     .webHookDriverTask(nunet, date_filter) //prapotep //phornchetj  //22-04-2025 , 24-01-2025 //23-04-2025
@@ -130,10 +130,11 @@ app.get("/onday", function (req, res) {
     });
 });
 
+//test push message to line notify with single user token
 app.get("/push", function (req, res) {
   //
   var nunet = "chaiwattho";
-  var date_filter = "30-04-2025";
+  var date_filter = "02-05-2025";
 
   util
     .webHookDriverTask(nunet, date_filter) //prapotep //phornchetj  //22-04-2025 , 24-01-2025 //23-04-2025
@@ -169,7 +170,7 @@ app.get("/push", function (req, res) {
               messages: [
                 {
                   type: "flex",
-                  altText: "แจ้งเตือน ระบบจองยานพาหนะ",
+                  altText: `${config.label_notification}`,
                   contents: {
                     type: "carousel",
                     contents: flex,

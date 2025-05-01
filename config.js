@@ -9,6 +9,8 @@ const {
   DRIVER_ACC,
   ASSET_URL,
   LINE_CHANNEL_ACCESS_TOKEN,
+  APPROVER,
+  LABEL_NOTIFICATION,
 } = process.env;
 
 module.exports = {
@@ -19,4 +21,6 @@ module.exports = {
   driver_acc: DRIVER_ACC,
   asset_url: ASSET_URL,
   line_channel_access_token: LINE_CHANNEL_ACCESS_TOKEN,
+  approver: APPROVER,
+  label_notification: LABEL_NOTIFICATION,
 };

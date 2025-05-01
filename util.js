@@ -156,129 +156,124 @@ exports.webHookNotApprove = new Promise((resolve, reject) => {
     "Start DateTime " + momentz.tz("Asia/Bangkok").format("DD-MM-YYYY HH:mm")
   );
   console.log("Sent" + "@" + momentz.tz("Asia/Bangkok").format("YYYY-MM-DD"));
-
-  dateCheck = "2025-04-22";
+  var nunet = "korakodn";
+  var dateStart = "23-04-2025";
+  var dateEnd = "28-04-2025";
   //dateCheck = momentz.tz("Asia/Bangkok").format("DD-MM-YYYY");
 
   request({
     method: "GET",
-    uri: config.external_url + "/pending/" + dateCheck,
+    uri: `${config.external_url}/pending/${nunet}/${dateStart}/to/${dateEnd}`,
     headers: { Accept: "application/json" },
   })
     .then(function (response) {
       objJSON = JSON.parse(response);
       var schedule = [];
 
-      console.log("result" + objJSON);
+      console.log("result pending");
       console.log("count:" + objJSON.length);
 
-      var appointment_days = "";
-      var appointment_str = "";
-      var appointment_type = "onedays";
-      var userIdToken = "";
-      var location = "";
+      // for (var index in objJSON) {
+      //   //console.log(attributename + ": " + objJSON[attributename]);
+      //   console.log("booking_number: " + objJSON[index].booking_number);
+      //   console.log("user_request: " + objJSON[index].user_request);
+      //   console.log("use_to: " + objJSON[index].use_to);
+      //   console.log("title: " + objJSON[index].title);
+      //   //userId
+      //   console.log("token: " + objJSON[index].userId);
+      //   userIdToken = objJSON[index].userId;
+      //   //location
+      //   location = objJSON[index].location;
 
-      for (var index in objJSON) {
-        //console.log(attributename + ": " + objJSON[attributename]);
-        console.log("booking_number: " + objJSON[index].booking_number);
-        console.log("user_request: " + objJSON[index].user_request);
-        console.log("use_to: " + objJSON[index].use_to);
-        console.log("title: " + objJSON[index].title);
-        //userId
-        console.log("token: " + objJSON[index].userId);
-        userIdToken = objJSON[index].userId;
-        //location
-        location = objJSON[index].location;
+      //   if (objJSON[index].startdate === objJSON[index].enddate) {
+      //     //same days ในวันที่
+      //     //var d = momment('2019-01-01');
+      //     var d = moment(objJSON[index].startdate);
+      //     //var st = moment("13:15:00", "h:mm:ss");
+      //     var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
+      //     var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
 
-        if (objJSON[index].startdate === objJSON[index].enddate) {
-          //same days ในวันที่
-          //var d = momment('2019-01-01');
-          var d = moment(objJSON[index].startdate);
-          //var st = moment("13:15:00", "h:mm:ss");
-          var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
-          var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
+      //     appointment_days =
+      //       d.format("D") +
+      //       " " +
+      //       getCurrentMonth(d.format("MM")) +
+      //       " " +
+      //       (parseInt(d.format("YYYY")) + 543);
+      //     //format("hh:mm A") =12hr
+      //     appointment_start_time = st.format("HH:mm");
+      //     appointment_end_time = et.format("HH:mm");
+      //     appointment_str =
+      //       appointment_days +
+      //       " เวลา " +
+      //       appointment_start_time +
+      //       " ถึง " +
+      //       appointment_end_time;
+      //   } else {
+      //     //between ระหว่างวันที่
+      //     // waiting to implement
+      //     var dT = moment(objJSON[index].startdate);
+      //     var dE = moment(objJSON[index].enddate);
 
-          appointment_days =
-            d.format("D") +
-            " " +
-            getCurrentMonth(d.format("MM")) +
-            " " +
-            (parseInt(d.format("YYYY")) + 543);
-          //format("hh:mm A") =12hr
-          appointment_start_time = st.format("HH:mm");
-          appointment_end_time = et.format("HH:mm");
-          appointment_str =
-            appointment_days +
-            " เวลา " +
-            appointment_start_time +
-            " ถึง " +
-            appointment_end_time;
-        } else {
-          //between ระหว่างวันที่
-          // waiting to implement
-          var dT = moment(objJSON[index].startdate);
-          var dE = moment(objJSON[index].enddate);
+      //     var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
+      //     var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
 
-          var st = moment(objJSON[index].start_time, "h:mm:ss"); //start_time
-          var et = moment(objJSON[index].end_time, "h:mm:ss"); //start_time
+      //     appointment_start_time = st.format("HH:mm");
+      //     appointment_end_time = et.format("HH:mm");
 
-          appointment_start_time = st.format("HH:mm");
-          appointment_end_time = et.format("HH:mm");
+      //     //console.log("startdate :" + objJSON[index].startdate);
+      //     //console.log("enddate :" + objJSON[index].enddate);
 
-          //console.log("startdate :" + objJSON[index].startdate);
-          //console.log("enddate :" + objJSON[index].enddate);
+      //     //console.log("startdate :" + dT.format("D"));
+      //     //console.log("enddate :" + dE.format("D"));
 
-          //console.log("startdate :" + dT.format("D"));
-          //console.log("enddate :" + dE.format("D"));
+      //     startDate =
+      //       dT.format("d") +
+      //       " " +
+      //       getCurrentMonth(dT.format("MM")) +
+      //       " " +
+      //       (parseInt(dT.format("YYYY")) + 543);
 
-          startDate =
-            dT.format("d") +
-            " " +
-            getCurrentMonth(dT.format("MM")) +
-            " " +
-            (parseInt(dT.format("YYYY")) + 543);
+      //     endDate =
+      //       dE.format("d") +
+      //       " " +
+      //       getCurrentMonth(dE.format("MM")) +
+      //       " " +
+      //       (parseInt(dE.format("YYYY")) + 543);
 
-          endDate =
-            dE.format("d") +
-            " " +
-            getCurrentMonth(dE.format("MM")) +
-            " " +
-            (parseInt(dE.format("YYYY")) + 543);
+      //     appointment_type = "period";
+      //     appointment_str =
+      //       "ตั้งแต่วันที่ " +
+      //       startDate +
+      //       " เวลา " +
+      //       appointment_start_time +
+      //       " ถึงวันที่ " +
+      //       endDate +
+      //       " เวลา " +
+      //       appointment_end_time;
+      //   }
 
-          appointment_type = "period";
-          appointment_str =
-            "ตั้งแต่วันที่ " +
-            startDate +
-            " เวลา " +
-            appointment_start_time +
-            " ถึงวันที่ " +
-            endDate +
-            " เวลา " +
-            appointment_end_time;
-        }
+      //   schedule[index] = {
+      //     booking_number: objJSON[index].booking_number,
+      //     use_to: objJSON[index].use_to,
+      //     title: objJSON[index].title,
+      //     user_request: objJSON[index].user_request,
+      //     car:
+      //       objJSON[index].vehicle_type +
+      //       " ทะเบียน " +
+      //       objJSON[index].vehicle_number,
+      //     location: location,
+      //     appointment: appointment_str,
+      //     appointment_type: appointment_type,
+      //     token: userIdToken,
+      //     phone: objJSON[index].phone,
+      //     travelers: objJSON[index].travelers,
+      //   };
+      //   //schedule.push(schedule[index]);
+      //   index++;
+      // }
 
-        schedule[index] = {
-          booking_number: objJSON[index].booking_number,
-          use_to: objJSON[index].use_to,
-          title: objJSON[index].title,
-          user_request: objJSON[index].user_request,
-          car:
-            objJSON[index].vehicle_type +
-            " ทะเบียน " +
-            objJSON[index].vehicle_number,
-          location: location,
-          appointment: appointment_str,
-          appointment_type: appointment_type,
-          token: userIdToken,
-          phone: objJSON[index].phone,
-          travelers: objJSON[index].travelers,
-        };
-        //schedule.push(schedule[index]);
-        index++;
-      }
-
-      //schedule[0] = { booking_number: "test", use_to: "ss", title: "title" };
-      //schedule[1] = { booking_number: "test2", use_to: "dd", title: "title" };
+      schedule[0] = { booking_number: "test", use_to: "ss", title: "title" };
+      schedule[1] = { booking_number: "test2", use_to: "dd", title: "title" };
 
       resolve({
         schedule,
@@ -686,18 +681,48 @@ function createFlexMessage(booking) {
 
 function createMainBubble(booking, date_checked, locations) {
   // Multi-dimensional array with key-value mapping for usernames and profile images
-  const profiles = [
-    { username: "prapotep", image: "prapotep.png" },
-    { username: "phornchetj", image: "tae_cute.png" },
-    { username: "chaiwattho", image: "driver3.png" },
-    { username: "tongchaili", image: "thongchaili.png" },
+  // const profiles = [
+  //   { username: "prapotep", image: "prapotep.png" },
+  //   { username: "phornchetj", image: "tae_cute.png" },
+  //   {
+  //     username: "chaiwattho",
+  //     image: "wall-stickers-for-kids-mario-and-yoshi.jpg",
+  //   },
+  //   { username: "tongchaili", image: "Browser_Mario_Kart.png" }, //thongchaili.png
+  // ];
+
+  // // Find the profile image for the given user
+  // const userProfile = profiles.find(
+  //   (profile) => profile.username === booking.driver_nunet
+  // );
+  // const userImage = userProfile
+  //   ? userProfile.image
+  //   : "wall-stickers-for-kids-mario-and-yoshi.jpg";
+
+  // List of images for randomization
+  const randomImages = [
+    "Browser_Mario_Kart.png",
+    "wall-stickers-for-kids-mario-and-yoshi.jpg",
+    //"diddy_kong.jpg",
+    "donkey-kong-bananza.jpg",
   ];
 
-  // Find the profile image for the given user
-  const userProfile = profiles.find(
-    (profile) => profile.username === booking.driver_nunet
-  );
-  const userImage = userProfile ? userProfile.image : "default.png";
+  // Randomly select an image from the list
+  const randomIndex = Math.floor(Math.random() * randomImages.length);
+  const userImage = randomImages[randomIndex];
+
+  //moment("2022/12/01", "YYYY-MM-DD")
+  var myDate = moment(date_checked, "DD-MM-YYYY");
+  //dateCheck = momentz.tz("Asia/Bangkok").format("DD-MM-YYYY");
+
+  onDate =
+    myDate.format("DD") +
+    " " +
+    getCurrentMonth(myDate.format("MM")) +
+    " " +
+    (parseInt(myDate.format("YYYY")) + 543);
+
+  console.log("onDate: " + onDate);
 
   return {
     type: "bubble",
@@ -707,7 +732,7 @@ function createMainBubble(booking, date_checked, locations) {
       contents: [
         {
           type: "text",
-          text: "แจ้งเตือน: ระบบยานพาหนะ",
+          text: `${config.label_notification}`,
           color: "#FFFFFF",
           align: "center",
           scaling: true,
@@ -761,7 +786,7 @@ function createMainBubble(booking, date_checked, locations) {
       contents: [
         {
           type: "text",
-          text: `งานวันนี้ (${date_checked} )`,
+          text: `งานวันนี้ (${onDate})`,
           align: "center",
           weight: "regular",
           color: "#FFFFFF",
@@ -784,40 +809,40 @@ function createMainBubble(booking, date_checked, locations) {
 function getCurrentMonth(month_num) {
   switch (month_num) {
     case "01":
-      return "มกราคม";
+      return "ม.ค."; //มกราคม
       break;
     case "02":
-      return "กุมภาพันธ์";
+      return "ก.พ."; //กุมภาพันธ์
       break;
     case "03":
-      return "มีนาคม";
+      return "มี.ค."; //มีนาคม
       break;
     case "04":
-      return "เมษายน";
+      return "เม.ย."; //เมษายน
       break;
     case "05":
-      return "พฤษภาคม";
+      return "พ.ค."; //พฤษภาคม
       break;
     case "06":
-      return "มิถุนายน";
+      return "มิ.ย."; //มิถุนายน
       break;
     case "07":
-      return "กรกฎาคม";
+      return "ก.ค."; //กรกฎาคม
       break;
     case "08":
-      return "สิงหาคม";
+      return "ส.ค."; //สิงหาคม
       break;
     case "09":
-      return "กันยายน";
+      return "ก.ย."; //กันยายน
       break;
     case "10":
-      return "ตุลาคม";
+      return "ต.ค."; // ตุลาคม
       break;
     case "11":
-      return "พฤศจิกายน";
+      return "พ.ย."; //  พฤศจิกายน
       break;
     case "12":
-      return "ธันวาคม";
+      return "ธ.ค."; //ธันวาคม
       break;
   }
 }
